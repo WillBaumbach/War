@@ -23,9 +23,6 @@ stack<int> limbo;
 int turns = 0;
 vector<int> deck = {14,14,14,14,13,13,13,13,12,12,12,12,11,11,11,11,10,10,10,10,9,9,9,9,8,8,8,8,7,7,7,7,6,6,6,6,5,5,5,5,4,4,4,4,3,3,3,3,2,2,2,2};
 
-
-
-
 void Setup()
 {
     cout << "Welcome to the Game of War!" << endl << "1. New Game." << endl << "2. Quit" << endl;
@@ -47,7 +44,11 @@ void Setup()
     }
     
     // Setting up deck and dealing cards
-    random_shuffle(begin(deck), end(deck));
+    srand(time(NULL));
+    for(int i =0; i < rand(); i++)
+    {
+        random_shuffle(begin(deck), end(deck));
+    }
     for(int i = 0; i < deck.size(); i+=2)
     {
         playerHand.push(deck[i]);
@@ -58,7 +59,11 @@ void Setup()
 
 void PlayHand()
 {
-    if(playerHand.top() > compHand.top())
+    if(playerHand.empty() || compHand.empty())
+    {
+        return;
+    }
+    else if(playerHand.top() > compHand.top())
     {
         if(!limbo.empty())
         {
@@ -92,16 +97,60 @@ void PlayHand()
 
 void CheckWar()
 {
-    int a = playerHand.top();
-    int b = compHand.top();
-    if(a == b)
+    if(playerHand.empty() || compHand.empty())
     {
-        for (int i = 0; i < 4; i++)
+        return;
+    }
+    else if(!compHand.empty() && !playerHand.empty())
+    {
+        int a = playerHand.top();
+        int b = compHand.top();
+        if(a == b)
         {
-            limbo.push(playerHand.top());
-            playerHand.pop();
-            limbo.push(compHand.top());
-            compHand.pop();
+            for (int i = 0; i < 4; i++)
+            {
+                if(playerHand.empty())
+                {
+                    if(!playerDisc.empty())
+                    {
+                        for (int i = 0; i < playerDisc.size(); i++)
+                        {
+                            playerHand.push(playerDisc.top());
+                            playerDisc.pop();
+                        }
+                        limbo.push(playerHand.top());
+                        playerHand.pop();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                else if (compHand.empty())
+                {
+                    if(!compDisc.empty())
+                    {
+                        for (int i = 0; i < compDisc.size(); i++)
+                        {
+                            compHand.push(compDisc.top());
+                            compDisc.pop();
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+                    limbo.push(compHand.top());
+                    compHand.pop();
+                }
+                else if(playerHand.size() > 0 && compHand.size() > 0)
+                {
+                    limbo.push(playerHand.top());
+                    playerHand.pop();
+                    limbo.push(compHand.top());
+                    compHand.pop();
+                }
+            }
         }
     }
 }
@@ -113,7 +162,7 @@ void CheckHand()
         if (playerDisc.empty())
         {
             running = false;
-            cout << "Player Wins!! This game lasted for " << turns << " turns!" << endl << "Thanks so much for playing!";
+            cout << "Computer Wins!! This game lasted for " << turns << " turns!" << endl << "Thanks so much for playing! Better luck next time!" << endl;
         }
         else
         {
@@ -129,7 +178,7 @@ void CheckHand()
         if (compDisc.empty())
         {
             running = false;
-            cout << "Computer Wins!! This game lasted for " << turns << " turns! Better luck next time!" << endl << "Thanks so much for playing!";
+            cout << "Player Wins!! This game lasted for " << turns << " turns!" << endl << "Thanks so much for playing!" << endl;
         }
         else
         {
